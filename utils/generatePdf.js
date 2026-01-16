@@ -67,7 +67,7 @@ module.exports = function generateRecordPDF(record, res) {
   const recordNumber = `DH-${year}${month}${String(record.id || 0).padStart(3, "0")}`;
 
   doc.fontSize(20).text("洽谈记录", { align: "center" });
-  doc.fontSize(12).text(`记录编号：${recordNumber}`, { align: "right" });
+  doc.fontSize(12).text(`洽谈编号：${recordNumber}`, { align: "right" });
   doc.moveDown(2);
 
   /** ---------- Render section ---------- */
