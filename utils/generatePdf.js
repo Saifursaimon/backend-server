@@ -56,30 +56,49 @@ module.exports = function generateRecordPDF(record, res) {
   doc.moveDown(2);
 
   const renderSection = (titleKey, sectionData) => {
-    if (!sectionData || Object.keys(sectionData).length === 0) return;
+  if (!sectionData || Object.keys(sectionData).length === 0) return;
 
-    const title = labels[titleKey] || titleKey;
-    doc.fontSize(18).text(title, { underline: true });
-    doc.moveDown(1);
+  const title = labels[titleKey] || titleKey;
+  doc.fontSize(18).text(title, { underline: true });
+  doc.moveDown(1);
 
-    const LABEL_WIDTH = 120;
-    Object.entries(sectionData).forEach(([key, value]) => {
-      const formattedValue = formatValue(key, value);
-      if (!formattedValue) return; // skip empty/false fields
+  const LABEL_WIDTH = 120;
 
-      const labelText = key === "department" ? "部门：" : `${labels[key] || key}：`;
+  Object.entries(sectionData).forEach(([key, value]) => {
+    // Special handling for empty/false
+    if (value === null || value === undefined || value === "" || value === false) return;
 
-      // Label
-      doc.fontSize(16).text(labelText, { width: LABEL_WIDTH, continued: true });
+    const labelText = key === "department" ? "部门：" : `${labels[key] || key}：`;
 
-      // Value
-      doc.fontSize(14).text(formattedValue);
+    // If value is a nested object, print label once and render fields indented
+    if (typeof value === "object" && !value.year) {
+      doc.fontSize(16).text(labelText); // main label
+      doc.moveDown(0.3);
+
+      Object.entries(value).forEach(([subKey, subValue]) => {
+        const formatted = formatValue(subKey, subValue);
+        if (!formatted) return;
+
+        // indent nested fields
+        doc.fontSize(14).text(`${labels[subKey] || subKey}：${formatted}`, { indent: 20 });
+        doc.moveDown(0.5);
+      });
 
       doc.moveDown(0.8);
-    });
+    } else {
+      // normal field
+      const formatted = formatValue(key, value);
+      if (!formatted) return;
 
-    doc.moveDown(2);
-  };
+      doc.fontSize(16).text(labelText, { width: LABEL_WIDTH, continued: true });
+      doc.fontSize(14).text(formatted);
+      doc.moveDown(0.8);
+    }
+  });
+
+  doc.moveDown(2); // spacing between sections
+};
+
 
   renderSection("basicInfo", record.basicInfo);
   renderSection("coreNeeds", record.coreNeeds);
