@@ -15,7 +15,7 @@ const formatValue = (value) => {
     value.month &&
     value.day
   ) {
-    return `年: ${value.year} | 月: ${value.month} | 日: ${value.day}`;
+    return `${value.year} 年 ${value.month} 月 ${value.day} 日`;
   }
 
   if (typeof value === "string") return value;
@@ -26,14 +26,17 @@ const formatValue = (value) => {
         const label = labels[k] || k;
         return `${label}: ${formatValue(v)}`;
       })
-      .join(" | ");
+      .join("，");
   }
 
   return String(value);
 };
 
 module.exports = function generateRecordPDF(record, res) {
-  const doc = new PDFDocument({ margin: 50 });
+  const doc = new PDFDocument({
+    margin: 50,
+    lineGap: 8, // ⭐ more breathing space
+  });
 
   /* ---------- Chinese font ---------- */
   const fontPath = path.join(
@@ -54,29 +57,41 @@ module.exports = function generateRecordPDF(record, res) {
   doc.pipe(res);
 
   /* ---------- Title ---------- */
-  doc.fontSize(18).text("洽谈记录", { align: "center" });
+  doc.fontSize(20).text("洽谈记录", { align: "center" });
   doc.moveDown(2);
 
   /* ---------- Section renderer ---------- */
   const renderSection = (titleKey, sectionData) => {
-    if (!sectionData) return;
+    if (!sectionData || Object.keys(sectionData).length === 0) return;
 
     const title = labels[titleKey] || titleKey;
 
+    // Section title
     doc
-      .fontSize(14)
+      .fontSize(17)
       .text(title, { underline: true });
 
-    doc.moveDown(0.5);
-
-    doc.fontSize(11);
+    doc.moveDown(1);
 
     Object.entries(sectionData).forEach(([key, value]) => {
       const label = labels[key] || key;
-      doc.text(`${label}：${formatValue(value)}`);
+
+      // Label (slightly smaller)
+      doc
+        .fontSize(12)
+        .text(`${label}：`, {
+          continued: true,
+        });
+
+      // Value (⭐ bigger & clearer)
+      doc
+        .fontSize(14)
+        .text(formatValue(value));
+
+      doc.moveDown(0.8); // ⭐ spacing between rows
     });
 
-    doc.moveDown(1.5);
+    doc.moveDown(2); // ⭐ spacing between sections
   };
 
   /* ---------- Sections ---------- */
