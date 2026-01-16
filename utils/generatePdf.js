@@ -15,7 +15,7 @@ const formatValue = (value) => {
     value.month &&
     value.day
   ) {
-    return `${value.year} 年 ${value.month} 月 ${value.day} 日`;
+    return `${value.year} / ${value.month} / ${value.day} `;
   }
 
   if (typeof value === "string") return value;
