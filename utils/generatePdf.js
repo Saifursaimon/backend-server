@@ -9,13 +9,18 @@ const formatValue = (value) => {
     return value ? "是" : "否";
   }
 
+  // ⭐ Format date nicely
   if (
     typeof value === "object" &&
-    value.year &&
-    value.month &&
-    value.day
+    value.year !== undefined &&
+    value.month !== undefined &&
+    value.day !== undefined
   ) {
-    return `${value.year} / ${value.month} / ${value.day} `;
+    const year = String(value.year).padStart(4, "0");
+    const month = String(value.month).padStart(2, "0");
+    const day = String(value.day).padStart(2, "0");
+
+    return `${year}年 ${month}月 ${day}日`;
   }
 
   if (typeof value === "string") return value;
@@ -31,6 +36,7 @@ const formatValue = (value) => {
 
   return String(value);
 };
+
 
 module.exports = function generateRecordPDF(record, res) {
   const doc = new PDFDocument({
@@ -68,7 +74,7 @@ module.exports = function generateRecordPDF(record, res) {
 
     // Section title
     doc
-      .fontSize(17)
+      .fontSize(18)
       .text(title, { underline: true });
 
     doc.moveDown(1);
@@ -78,7 +84,7 @@ module.exports = function generateRecordPDF(record, res) {
 
       // Label (slightly smaller)
       doc
-        .fontSize(12)
+        .fontSize(16)
         .text(`${label}：`, {
           continued: true,
         });
