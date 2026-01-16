@@ -165,24 +165,3 @@ exports.deleteRecord = (req, res) => {
   }
 };
 
-exports.downloadRecordPDF = (req, res) => {
-  const { id } = req.params;
-
-  const record = db
-    .prepare("SELECT * FROM records WHERE id = ?")
-    .get(id);
-
-  if (!record) {
-    return res.status(404).json({ message: "Record not found" });
-  }
-
-  const parsedRecord = {
-    ...record,
-    basicInfo: JSON.parse(record.basicInfo),
-    coreNeeds: JSON.parse(record.coreNeeds),
-    projectConstraints: JSON.parse(record.projectConstraints),
-    specialNeeds: JSON.parse(record.specialNeeds),
-  };
-
-  generatePdf(parsedRecord, res);
-};

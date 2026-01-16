@@ -11,6 +11,5 @@ router.get("/:id", controller.getRecordById);
 router.put("/:id", controller.updateRecord);
 router.delete("/:id", controller.deleteRecord);
 
-router.get("/:id/download", controller.downloadRecordPDF);
 
 module.exports = router;
