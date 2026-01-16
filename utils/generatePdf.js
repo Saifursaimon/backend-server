@@ -62,7 +62,7 @@ module.exports = function generateRecordPDF(record, res) {
   doc.fontSize(18).text(title, { underline: true });
   doc.moveDown(1);
 
-  const LABEL_WIDTH = 120;
+ 
 
   Object.entries(sectionData).forEach(([key, value]) => {
     // Special handling for empty/false
@@ -90,7 +90,7 @@ module.exports = function generateRecordPDF(record, res) {
       const formatted = formatValue(key, value);
       if (!formatted) return;
 
-      doc.fontSize(16).text(labelText, { width: LABEL_WIDTH, continued: true });
+      doc.fontSize(16).text(labelText, { continued: true });
       doc.fontSize(14).text(formatted);
       doc.moveDown(0.8);
     }
