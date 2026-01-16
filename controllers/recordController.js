@@ -1,10 +1,7 @@
 const db = require("../db");
 const generatePdf = require("../utils/generatePdf");
 
-/**
- * CREATE RECORD
- * POST /records
- */
+
 exports.createRecord = (req, res) => {
   try {
     const {
@@ -42,10 +39,69 @@ exports.createRecord = (req, res) => {
   }
 };
 
-/**
- * GET ALL RECORDS
- * GET /records
- */
+exports.updateRecord = (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      basicInfo,
+      coreNeeds,
+      projectConstraints,
+      specialNeeds,
+    } = req.body;
+
+    // Check if record exists
+    const existing = db
+      .prepare(`SELECT * FROM records WHERE id = ?`)
+      .get(id);
+
+    if (!existing) {
+      return res.status(404).json({ message: "Record not found" });
+    }
+
+    // Merge new data with existing data
+    const updatedBasicInfo = basicInfo
+      ? JSON.stringify(basicInfo)
+      : existing.basicInfo;
+
+    const updatedCoreNeeds = coreNeeds
+      ? JSON.stringify(coreNeeds)
+      : existing.coreNeeds;
+
+    const updatedProjectConstraints = projectConstraints
+      ? JSON.stringify(projectConstraints)
+      : existing.projectConstraints;
+
+    const updatedSpecialNeeds = specialNeeds
+      ? JSON.stringify(specialNeeds)
+      : existing.specialNeeds;
+
+    db.prepare(`
+      UPDATE records
+      SET
+        basicInfo = ?,
+        coreNeeds = ?,
+        projectConstraints = ?,
+        specialNeeds = ?
+      WHERE id = ?
+    `).run(
+      updatedBasicInfo,
+      updatedCoreNeeds,
+      updatedProjectConstraints,
+      updatedSpecialNeeds,
+      id
+    );
+
+    res.json({
+      success: true,
+      message: "Record updated successfully",
+    });
+  } catch (err) {
+    console.error("Update record failed:", err);
+    res.status(500).json({ message: "Failed to update record" });
+  }
+};
+
+
 exports.getAllRecords = (req, res) => {
   try {
     const rows = db.prepare(`SELECT * FROM records ORDER BY id DESC`).all();
@@ -66,10 +122,7 @@ exports.getAllRecords = (req, res) => {
   }
 };
 
-/**
- * GET SINGLE RECORD
- * GET /records/:id
- */
+
 exports.getRecordById = (req, res) => {
   try {
     const record = db
@@ -94,10 +147,7 @@ exports.getRecordById = (req, res) => {
   }
 };
 
-/**
- * DELETE RECORD
- * DELETE /records/:id
- */
+
 exports.deleteRecord = (req, res) => {
   try {
     const result = db

@@ -8,8 +8,7 @@ router.post("/", controller.createRecord);
 // READ
 router.get("/", controller.getAllRecords);
 router.get("/:id", controller.getRecordById);
-
-// DELETE
+router.put("/:id", controller.updateRecord);
 router.delete("/:id", controller.deleteRecord);
 
 router.get("/:id/download", controller.downloadRecordPDF);
