@@ -1,5 +1,5 @@
 const db = require("../db");
-const generatePdf = require("../utils/generatePdf");
+
 
 
 exports.createRecord = (req, res) => {
